@@ -3,47 +3,51 @@
 # 목차
 
 1. [소개](#소개)
-    1. [거시적 관점에서의 Elasticsearch](#거시적인-관점에서의-elasticsearch-)
+    1. [이 글에서 소개할 Elasticsearch](#이-글에서-소개할-elasticsearch)
     2. [루씬 소개하기](#루씬-소개하기)
-    3. [거시적 관점에서의 lucene](#거시적인-관점에서의-lucene-)
+    3. [이 글에서 소개할 Lucene](#이-글에서-소개할-lucene)
 
 
 2. [엘라스틱서치 구성요소 보기](#엘라스틱서치-구성요소-보기)
-    1. [Lucene과 엘라스틱서치의 관계](#lucene-과-elasticsearch-의-관계-)
+    1. [Lucene과 엘라스틱서치의 관계](#lucene과-elasticsearch의-관계)
 
-    2. [엘라스틱서치 주요 용어 보기](#)
+    2. [엘라스틱서치 주요 용어 보기](#엘라스틱서치-주요-용어-보기)
         1. [논리적 구조로의 ES](#논리적-구조로의-es)
         2. [물리적 구조로의 ES](#물리적-구조로의-es)
 
     3. [Elasticsearch 의 노드 별 역할](#elasticsearch-의-노드-별-역할)
         1. [노드가 수행 가능한 역할](#노드가-수행-가능한-역할)
-        2. [언제 역할을 나누어야 하는가](#언제-역할을-나누어야-하는가-)
+        2. [언제 역할을 나누어야 하는가](#언제-역할을-나누어야-하는가)
         3. [split brain 문제](#split-brain-문제)
 
 
-3. [루씬 살펴보기 - 쓰기 연산 ](#lucene)
-    1. [요청수신](#요청수신)
-    2. [flush](#flush)
-    3. [merge](#merge)
-    3. [commit](#commit)
+3. [루씬](#lucene)
 
 
-4. [루씬 살펴보기 - 읽기 연산 ](#)
-    1. [읽기 연산](#)
+4. [루씬 연산 자세히 보기](#)
+   1. [루씬 살펴보기 - 쓰기 연산](#루씬-살펴보기---쓰기-연산)
+      1. [순서 1. 요청수신](#순서-1-요청수신)
+      2. [순서 2. Flush](#순서-2-flush)
+      3. [순서 3. Merge](#순서-3-merge)
+      4. [순서 4. Commit](#순서-4-commit)
+   2. [루씬 살펴보기 - 읽기 연산](#루씬-살펴보기---읽기-연산)
+      1. [읽기에서의 퍼포먼스 고려사항](#읽기에서의-퍼포먼스-고려사항-)
 
 
-5. [lucene 구조의 득실 살펴보기](#)
+5. [루씬 코드 살펴보기](#루씬-코드-살펴보기)
+   1. [주요 코드 부분](#주요-코드-부분)
 
+6. [루씬 읽기-코드-자세히-보기](#읽기-코드-자세히-보기-)
+      1. [SegmentReader.java 자세히 보기](#segmentreaderjava-자세히-보기)
+      2. [SegmentReader 생성 시점](#segmentreader-생성-시점)
+         
 
-6. [루씬 읽기 코드 살펴보기](#)
-    1. [ 쓰기 연산 lock-free operation](#)
-    2. [SegmentReader 의 코드 읽기 - disk 접근이 없는 read](#)
-    3. [SegmentReader 생성 시점](#)
-
-
-7. [루씬 쓰기 코드 살펴보기](#)
-    1. []
-
+7. [루씬 쓰기 연산 코드 보기](#)
+   1. [Upsert API 호출](#upsert-api-호출-)
+      1. [1. indexWriter 에 문서 upsert](#1-indexwriter-에-문서-upsert)
+      2. [indexingChain 과 FieldWriter](#indexingchain-과--fieldwriter-)
+   2. [Flush 가 수행 될 때](#flush-가-수행-될-때)
+ 
 # 소개
 
 이 문서는 엘라스틱서치(Elasticsearch)와 루씬(Lucene)의 내부 구조와 동작에 대해 다룹니다.
@@ -52,7 +56,7 @@
 
 루씬의 읽기, 쓰기에 대한 매커니즘을 루씬 코드와 함께 확인해봅니다.
 
-## 거시적인 관점에서의 Elasticsearch
+## 이 글에서 소개할 Elasticsearch
 
 ![전체적으로_보기.png](images%2F%EC%A0%84%EC%B2%B4%EC%A0%81%EC%9C%BC%EB%A1%9C_%EB%B3%B4%EA%B8%B0.png)
 
@@ -79,7 +83,7 @@
 
 만약 데이터가 적고, 오타 교정이나 자동 완성 등의 작은 기능을 구현하려는 경우라면 루씬에 대한 내용은 패스해도 괜찮습니다.
 
-## 거시적인 관점에서의 Lucene
+## 이 글에서 소개할 Lucene
 
 ![루씬.png](images%2F%EB%A3%A8%EC%94%AC.png)
 Apache Lucene 4 : lucene’s
@@ -274,7 +278,7 @@ Lucene의 동작 매커니즘은 다음과 같습니다:
 
 Segment는 각각의 파일로 관리됩니다. Segment의 갯수가 많아지면 읽어야 하는 파일의 수가 많아지고, 성능 저하의 원인이 될 수 있습니다. 이를 방지하기 위해 루씬은 주기적으로 segment를 병합하여 하나의 segment로 만듭니다. merge 단계 이후에는 반드시 commit이 수행됩니다.
 
-### commit
+### 순서 4. Commit
 
 디스크에 Segment를 반영하는 단계입니다. 이 과정은 주기적으로 실행되거나 merge 이후에 수행됩니다. Flush 단계까지는 세그먼트가 디스크에 반영되지 않았습니다. merge를 통해 새로 통합된 segment를 디스크에 반영하는 과정이 Commit 과정입니다. 이는 flush의 과정과는 다르게, 실제 디스크에 저장하는 방법입니다.
 

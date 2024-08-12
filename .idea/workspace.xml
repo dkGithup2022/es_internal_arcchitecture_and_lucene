@@ -5,21 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b58128be-3158-43ef-8900-d93772f9a288" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/elasticsearch_internal_architecture.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/flush.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/index_writer.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/merge.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/whatis_lucene.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/둥글둥글한예시.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/루씬.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/스크린샷 2024-08-12 오후 1.11.24.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/스크린샷 2024-08-12 오후 1.11.48.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/images/전체적으로_보기.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,7 +64,7 @@
       <workItem from="1723195128415" duration="7738000" />
       <workItem from="1723359010622" duration="19512000" />
       <workItem from="1723442224748" duration="2859000" />
-      <workItem from="1723446173186" duration="6233000" />
+      <workItem from="1723446173186" duration="7100000" />
     </task>
     <servers />
   </component>
